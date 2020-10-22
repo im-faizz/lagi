@@ -27,7 +27,7 @@ const serverOption = {
 
 const opsys = process.platform
 if (opsys === 'win32' || opsys === 'win64') {
-    serverOption.executablePath = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+    serverOption.executablePath = 'usr/bin/google-chrome-stable'
 } else if (opsys === 'linux') {
     serverOption.browserRevision = '737027'
 } else if (opsys === 'darwin') {
@@ -86,7 +86,7 @@ async function msgHandler (client, message) {
             break
         case 'menu':
         case 'help': {
-            const text = `Hi, ${pushname}! 👋️ \n\nUsable Commands!✨\n\n*Sticker Creator*\nCMD: #sticker\nDescription: Converts image into sticker, kirim gambar dengan caption #sticker atau balas gambar yang sudah dikirim dengan #sticker\n\nCMD: #sticker <url gambar>\nDescription: Converts image url into sticker\n\n*Gif Sticker*\nCMD : #gif Giphy URL\nDescription: Convert gif to sticker (but giphy only)\n\n*Downloader*\nCMD: #tiktok <post/video url>\nDescription: Return a Tiktok video\n\nCMD: #fb <post/video url>\nDescription: Return a Facebook video download link\n\nCMD: #ig <post/video url>\nDescription: Return a Instagram video download link\n\nCMD: #twt <post/video url>\nDescription: Return a Twitter video download link\n\n*Other*\nCMD: #tnc\nDescription: show the Terms and Conditions\n\nHope you have a great day!✨`
+            const text = `Hi, ${pushname}! cmd nya itu /n BUAT STIKER /n #stiker /n kirim foto trus kasih caption #stiker /n #Gifstiker(masih bug) /n *download cmd*(juga masih bug masalah di server) /n #tiktok <link> /n #ig <link> /n #fb <link> /n*other command* /n #snk /n syarat dan ketentuan bot /n *made by faiz*`
             client.sendText(from, text)
             break
         }
