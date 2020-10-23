@@ -82,11 +82,11 @@ async function msgHandler (client, message) {
 
         switch (command) {
         case 'tnc':
-            client.sendText(from, 'This bot is an open-source program written in Javascript. \n\nBy using the bot you agreeing to our Terms and Conditions! \nWe do not store any of your data in our servers. We are not responsible for stickers that you create using bots, videos, images or other data that you get from this bot.')
+            client.sendText(from, 'Bot ini adalah bot yg dibuat menggunakan java script. \n\nBy using the bot you agreeing to our Terms and Conditions! \nWe do not store any of your data in our servers. We are not responsible for stickers that you create using bots, videos, images or other data that you get from this bot.')
             break
         case 'menu':
         case 'help': {
-            const text = `Hi, ${pushname}! cmd nya itu /n BUAT STIKER /n #stiker /n kirim foto trus kasih caption #stiker /n #Gifstiker(masih bug) /n *download cmd*(juga masih bug masalah di server) /n #tiktok <link> /n #ig <link> /n #fb <link> /n*other command* /n #snk /n syarat dan ketentuan bot /n *made by faiz*`
+            const text = `Hi, ${pushname}! cmd nya itu /n/nBUAT STIKER /n/n#stiker /n/nkirim foto trus kasih caption #stiker /n/n#Gifstiker(masih bug) /n/n*download cmd*(juga masih bug masalah di server) /n/n#tiktok <link> /n #ig <link> /n #fb <link> /n*other command* /n #snk /n syarat dan ketentuan bot /n *made by faiz*`
             client.sendText(from, text)
             break
         }
@@ -146,105 +146,32 @@ async function msgHandler (client, message) {
                 }
             }
             break
-        case 'tiktok': {
-            if (args.length !== 1) return client.reply(from, 'Maaf, link yang kamu kirim tidak valid', id)
-            const url = args[0]
-            if (!url.match(isUrl) && !url.includes('tiktok.com')) return client.reply(from, 'Maaf, link yang kamu kirim tidak valid', id)
-            await client.sendText(from, '*Scraping Metadata...*')
-            await tiktok(url)
-                .then((videoMeta) => {
-                    const filename = videoMeta.authorMeta.name + '.mp4'
-                    const caps = `*Metadata:*\nUsername: ${videoMeta.authorMeta.name} \nMusic: ${videoMeta.musicMeta.musicName} \nView: ${videoMeta.playCount.toLocaleString()} \nLike: ${videoMeta.diggCount.toLocaleString()} \nComment: ${videoMeta.commentCount.toLocaleString()} \nShare: ${videoMeta.shareCount.toLocaleString()} \nCaption: ${videoMeta.text.trim() ? videoMeta.text : '-'} \n\nDonasi: kamu dapat membantuku beli dimsum dengan menyawer melalui https://saweria.co/donate/yogasakti atau mentrakteer melalui https://trakteer.id/red-emperor \nTerimakasih.`
-                    client.sendFileFromUrl(from, videoMeta.url, filename, videoMeta.NoWaterMark ? caps : `⚠ Video tanpa watermark tidak tersedia. \n\n${caps}`, '', { headers: { 'User-Agent': 'okhttp/4.5.0' } })
-                        .catch(err => console.log('Caught exception: ', err))
-                }).catch(() => {
-                    client.reply(from, 'Gagal mengambil metadata, link yang kamu kirim tidak valid', id)
-                })
-        }
-            break
-        case 'ig':
-        case 'instagram': {
-            if (args.length !== 1) return client.reply(from, 'Maaf, link yang kamu kirim tidak valid', id)
-            const url = args[0]
-            if (!url.match(isUrl) && !url.includes('instagram.com')) return client.reply(from, 'Maaf, link yang kamu kirim tidak valid', id)
-            await client.sendText(from, '*Scraping Metadata...*')
-            instagram(url)
-                .then(async (videoMeta) => {
-                    const content = []
-                    for (let i = 0; i < videoMeta.length; i++) {
-                        await urlShortener(videoMeta[i].video)
-                            .then((result) => {
-                                console.log('Shortlink: ' + result)
-                                content.push(`${i + 1}. ${result}`)
-                            }).catch((err) => {
-                                client.sendText(from, 'Error, ' + err)
-                            })
+                  // voice command section, will make a request to google translate API and recieved voice data.
+            case "voice":
+                // get country language code
+                if (body.split(" ").slice(1, 2).toString()) {
+                    let lang = body.split(" ").slice(1, 2).toString();
+                    lang = langCheck(lang);
+
+                    let text = body.split(" ").slice(2).toString().replace(/,/g, " ");
+                    if (lang === undefined) {
+                        lang = "id";
+                        text = body.split(" ").slice(1).toString().replace(/,/g, " ");
                     }
-                    client.sendText(from, `Link Download:\n${content.join('\n')} \n\nDonasi: kamu dapat membantuku beli dimsum dengan menyawer melalui https://saweria.co/donate/yogasakti atau mentrakteer melalui https://trakteer.id/red-emperor \nTerimakasih.`)
-                }).catch((err) => {
-                    if (err == 'Not a video') return client.reply(from, 'Error, tidak ada video di link yang kamu kirim', id)
-                    client.reply(from, 'Error, user private atau link salah', id)
-                })
-        }
-            break
-        case 'twt':
-        case 'twitter': {
-            if (args.length !== 1) return client.reply(from, 'Maaf, link yang kamu kirim tidak valid', id)
-            const url = args[0]
-            if (!url.match(isUrl) & !url.includes('twitter.com') || url.includes('t.co')) return client.reply(from, 'Maaf, url yang kamu kirim tidak valid', id)
-            await client.sendText(from, '*Scraping Metadata...*')
-            twitter(url)
-                .then(async (videoMeta) => {
-                    try {
-                        if (videoMeta.type == 'video') {
-                            const content = videoMeta.variants.filter(x => x.content_type !== 'application/x-mpegURL').sort((a, b) => b.bitrate - a.bitrate)
-                            const result = await urlShortener(content[0].url)
-                            console.log('Shortlink: ' + result)
-                            client.sendFileFromUrl(from, content[0].url, 'TwitterVideo.mp4', `Link Download: ${result} \n\nDonasi: kamu dapat membantuku beli dimsum dengan menyawer melalui https://saweria.co/donate/yogasakti atau mentrakteer melalui https://trakteer.id/red-emperor \nTerimakasih.`)
-                        } else if (videoMeta.type == 'photo') {
-                            for (let i = 0; i < videoMeta.variants.length; i++) {
-                                await client.sendFileFromUrl(from, videoMeta.variants[i], videoMeta.variants[i].split('/media/')[1], '')
-                            }
-                        }
-                    } catch (err) {
-                        client.sendText(from, 'Error, ' + err)
-                    }
-                }).catch(() => {
-                    client.sendText(from, 'Maaf, link tidak valid atau tidak ada video di link yang kamu kirim')
-                })
-        }
-            break
-        case 'fb':
-        case 'facebook': {
-            if (args.length !== 1) return client.reply(from, 'Maaf, link yang kamu kirim tidak valid', id)
-            const url = args[0]
-            if (!url.match(isUrl) && !url.includes('facebook.com')) return client.reply(from, 'Maaf, url yang kamu kirim tidak valid', id)
-            await client.sendText(from, '*Scraping Metadata...*')
-            facebook(url)
-                .then(async (videoMeta) => {
-                    try {
-                        const title = videoMeta.response.title
-                        const thumbnail = videoMeta.response.thumbnail
-                        const links = videoMeta.response.links
-                        const shorts = []
-                        for (let i = 0; i < links.length; i++) {
-                            const shortener = await urlShortener(links[i].url)
-                            console.log('Shortlink: ' + shortener)
-                            links[i].short = shortener
-                            shorts.push(links[i])
-                        }
-                        const link = shorts.map((x) => `${x.resolution} Quality: ${x.short}`)
-                        const caption = `Text: ${title} \nLink Download: \n${link.join('\n')} \n\nDonasi: kamu dapat membantuku beli dimsum dengan menyawer melalui https://saweria.co/donate/yogasakti atau mentrakteer melalui https://trakteer.id/red-emperor \nTerimakasih.`
-                        client.sendFileFromUrl(from, thumbnail, 'videos.jpg', caption)
-                    } catch (err) {
-                        client.reply(from, 'Error, ' + err, id)
-                    }
-                })
-                .catch((err) => {
-                    client.reply(from, `Error, url tidak valid atau tidak memuat video \n\n${err}`, id)
-                })
-        }
-            break
+
+                    client
+                        .sendFileFromUrl(from, `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${lang}&q=${text}`, "voice", "voice chat", id)
+                        .then((res) => console.log(`[INFO] ${from} Send Voice From google`))
+                        .catch((err) => {
+                            console.log(`[ERR] ${from} Failed sending voice note `);
+                            client.reply(from, "Pengambilan Voice Gagal. Coba lagi! 🤖", id);
+                        });
+                } else {
+                    // when there is no country language code
+                    console.log(`[FAIL] ${from} Should input Language country code`);
+                    client.reply(from, `*Pastikan anda memasukan kode Bahasa dan Pesan yang ingin di konversi ke voice!* 🤖`, id);
+                }
+                break;
         case 'mim':
         case 'memes':
         case 'meme': {
